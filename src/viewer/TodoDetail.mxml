@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark" title="任务详细"
+        creationComplete="creationCompleteHandler(event)"
+        >
+    <fx:Script>
+<![CDATA[
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.rpc.http.HTTPService;
+
+        // import spark.components.Alert;
+
+        internal function onResultHandler(evt:ResultEvent):void {
+            var o:Object = JSON.parse(evt.result.toString());//json中的字段和属性必须都是双引号
+            if (o.state == "1") {
+                navigator.pushView(Todolist, null);
+                // Alert.show("编辑成功");
+            }
+            else {
+                //  Alert.show("编辑失败");
+            }
+
+
+        }
+
+
+        protected function btnSave_clickHandler(event:MouseEvent):void {
+            //navigator.pushView(Todolist);
+            var httpService:HTTPService = new HTTPService();
+            httpService.url = "http://192.168.180.192:9090/ASHX/todoService.ashx";
+            httpService.useProxy = false;
+            httpService.resultFormat = "e4x";
+            httpService.addEventListener(ResultEvent.RESULT, onResultHandler);
+            var param:URLVariables = new URLVariables();
+            httpService.method = "post";
+
+            param.api = "UpdateList";
+            param.data = data.Id + "|" + txtTodo.text.toString() + "|" + chkisComplete.selected.toString();  //id,title,isComplete
+
+
+            httpService.send(param);
+
+
+        }
+
+        protected function btnQuit(event:MouseEvent):void {
+            navigator.pushView(Todolist, null);
+        }
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+
+        }
+        ]]>
+</fx:Script>
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+
+    <s:VGroup width="100%">
+
+        <s:TextInput id="txtTodo" text="{data.title}" enabled="true" borderVisible="false" width="100%"
+                     height="260"/>
+
+
+        <s:CheckBox id="chkisComplete" selected="{data.isComplete}" left="28"/>
+
+        <s:Button label="保存" id="btnSave" width="100%" skinClass="skins.ButtonSkin" height="80"
+                  horizontalCenter="0" verticalCenter="0"
+                  click="btnSave_clickHandler(event)"/>
+
+
+    </s:VGroup>
+
+</s:View>

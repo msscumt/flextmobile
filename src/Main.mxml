@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            firstView="viewer.Todolist"
+                            splashScreenImage="@Embed('images/bg.png')"
+                            splashScreenScaleMode="stretch"
+                            splashScreenMinimumDisplayTime="3000"
+        >
+
+    <fx:Script>
+<![CDATA[
+        import viewer.Todolist;
+
+        protected function homeButton_clickHandler(event:MouseEvent):void {
+
+            navigator.pushView(Todolist);
+        }
+
+        protected function backButton_clickHandler(event:MouseEvent):void {
+            navigator.popView();
+        }
+        ]]>
+</fx:Script>
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+    <s:navigationContent>
+        <s:Button id="homeButton" click="homeButton_clickHandler(event)"
+                  label="Exit"/>
+    </s:navigationContent>
+    <s:actionContent>
+        <s:Button id="backButton" click="backButton_clickHandler(event)"
+                  label="Back"/>
+    </s:actionContent>
+</s:ViewNavigatorApplication>
+
+
+

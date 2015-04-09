@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark" title="任务详细"
+        creationComplete="creationCompleteHandler(event)"
+        >
+    <fx:Script>
+<![CDATA[
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.rpc.http.HTTPService;
+
+        //*************数据绑定*******************
+        [Bindable]
+        private var taskDefault:String = '新待办事项';
+
+
+
+        internal function onResultHandler(evt:ResultEvent):void {
+            var o:Object = JSON.parse(evt.result.toString());//json中的字段和属性必须都是双引号
+            if (o.state == "1") {
+                navigator.pushView(Todolist, null);
+                // Alert.show("保存成功");
+            }
+            else {
+                // Alert.show("保存失败");
+            }
+
+
+        }
+
+
+        <!--*************后台通信*******************-->
+        <!--*************数据库采用NOSQL*******************-->
+        protected function btnSave_clickHandler(event:MouseEvent):void {
+
+            var httpService:HTTPService = new HTTPService();
+            httpService.url = "http://192.168.180.192:9090/ASHX/todoService.ashx";
+            httpService.useProxy = false;
+            httpService.resultFormat = "e4x";
+            httpService.addEventListener(ResultEvent.RESULT, onResultHandler);
+            var param:URLVariables = new URLVariables();
+            httpService.method = "post";
+
+            param.api = "AddList";
+            param.data = "001|" + txtTodo.text.toString() + "|" + chkisComplete.selected.toString();  //id,title,isComplete
+
+
+            httpService.send(param);
+
+
+        }
+        <!--*************事件*******************-->
+        protected function btnQuit(event:MouseEvent):void {
+
+            navigator.pushView(Todolist, null);
+        }
+        protected function btnTX_clickHandler(event:MouseEvent):void {
+
+            if (currentState == 'basic') {
+                currentState = 'expand';
+
+            }
+            else if (currentState == 'expand') {
+                currentState = 'basic';
+            }
+
+            else {
+                currentState = 'basic';
+            }
+
+
+
+        }
+        private function creationCompleteHandler(event:FlexEvent):void {
+            currentState = 'basic';
+        }
+        ]]>
+</fx:Script>
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+    <!--*************状态*******************-->
+    <s:states>
+        <s:State  name="basic" />
+        <s:State  name="expand" />
+
+    </s:states>
+    <!--*************转换特效*******************-->
+    <s:transitions>
+
+        <s:Transition fromState="*" toState="*">
+            <s:Rotate3D   target="{btnSave}" duration="1800"  angleXFrom="0" angleXTo="360"  />
+        </s:Transition>
+        <!--<s:Transition fromState="*" toState="*">-->
+        <!--<s:Rotate3D   target="{myBorder}" duration="1800"   angleZFrom="0" angleZTo="360" />-->
+        <!--</s:Transition>-->
+    </s:transitions>
+    <s:VGroup width="100%" >
+
+        <s:TextInput id="txtTodo" text="{taskDefault}" enabled="true" borderVisible="false" width="100%" height="260"/>
+        <s:CheckBox id="chkisComplete" left="28"/>
+        <!--*************皮肤*******************-->
+        <s:Button label="保存" id="btnSave" width="100%" skinClass="skins.ButtonSkin" height="80"
+                  horizontalCenter="0" verticalCenter="0"
+                  click="btnSave_clickHandler(event)"/>
+        <s:Button label="特效" id="btnTX" width="100%" skinClass="skins.ButtonSkin" height="80"
+                  horizontalCenter="0" verticalCenter="0"
+                  click="btnTX_clickHandler(event)"/>
+
+
+    </s:VGroup>
+
+</s:View>

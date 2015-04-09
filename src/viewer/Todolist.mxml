@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark" title="待办事项"
+        creationComplete="creationCompleteHandler(event)"
+        >
+    <fx:Script>
+<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.rpc.http.HTTPService;
+
+        import spark.components.Alert;//android 不支持
+
+
+        private function editTodo(event:MouseEvent):void {
+
+            data = list1.selectedItem;
+            if(data==null)
+            {
+                //Alert.show("请选择待办事项");
+                return
+            }
+            navigator.pushView(TodoDetail, data);
+        }
+
+        private function addTodo(event:MouseEvent):void {
+
+            navigator.pushView(TodoAdd,null);
+        }
+
+        private function delTodo(event:MouseEvent):void {
+            data = list1.selectedItem;
+            if(data==null)
+            {
+                //Alert.show("请选择待办事项");
+                return
+            }
+            var httpService:HTTPService = new HTTPService();
+            httpService.url = "http://192.168.180.192:9090/ASHX/todoService.ashx";
+           // httpService.url = "http://localhost:28824/ASHX/todoService.ashx";
+            httpService.useProxy = false;
+            httpService.resultFormat = "e4x";
+            httpService.addEventListener(ResultEvent.RESULT,onDeleteResultHandler);
+            var param:URLVariables = new URLVariables();
+            httpService.method = "post";
+
+            param.api = "DeleteList";
+            param.data = data.Id + "|" + data.title + "|" + data.isComplete;  //id,title,isComplete
+
+            httpService.send(param);
+
+        }
+        internal function onDeleteResultHandler(evt:ResultEvent):void {
+            var o:Object = JSON.parse(evt.result.toString());//json中的字段和属性必须都是双引号
+            if (o.state == "1") {
+                creationCompleteHandler(null);
+            }
+            else {
+               // Alert.show("删除失败");
+            }
+
+
+
+        }
+
+        internal function onResultHandler(evt:ResultEvent):void {
+            var o:Object = JSON.parse(evt.result.toString());//json中的字段和属性必须都是双引号
+            if (o.state == "1") {
+                var data:Array = JSON.parse(o.data) as Array;
+                var todoCollection:ArrayCollection = new ArrayCollection(data);
+                list1.dataProvider = todoCollection;
+            }
+            else {
+//                Alert.show("请求服务器失败");
+            }
+            bi.visible=false;
+
+
+        }
+
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            bi.visible=true;
+            var httpService:HTTPService = new HTTPService();
+            httpService.url = "http://192.168.180.192:9090/ASHX/todoService.ashx";
+            httpService.useProxy = false;
+            httpService.resultFormat = "e4x";
+            httpService.addEventListener(ResultEvent.RESULT,onResultHandler);
+            var param:URLVariables = new URLVariables();
+            httpService.method = "post";
+
+            param.api = "QueryLists";
+            param.data = "10";
+
+
+            httpService.send(param);
+
+
+        }
+        ]]>
+    </fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+
+
+    <s:navigationContent>
+        <s:Button label="Exit" click="NativeApplication.nativeApplication.exit();"/>
+
+    </s:navigationContent>
+
+    <s:actionContent>
+        <s:Button label="U" click="editTodo(event)"/>
+        <s:Button label="+" click="addTodo(event)"/>
+        <s:Button label="-" click="delTodo(event)"/>
+    </s:actionContent>
+    <s:layout>
+        <s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+    </s:layout>
+    <s:List id="list1" y="0"  width="100%" height="100%" itemRenderer="renderer.TextCheckListItemRenderer" verticalScrollPolicy="auto" >
+
+    </s:List>
+    <!-- 等待 -->
+    <s:BusyIndicator id="bi"  visible="false" symbolColor="0x000000" rotationInterval="50"  />
+
+
+</s:View>

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!--
+  Created by wangming on 15/3/31.
+-->
+<s:DataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+        >
+    <!-- data字段，是由系统自动构建的，在渲染器里可以随意访问data中的属性-->
+    <s:HGroup verticalAlign="middle" width="100%"  height="66" click="cb.selected = !cb.selected" >
+        <!--<s:Image id="todoImage"  source="@Embed('../images/add.png')" scaleMode="stretch" width="10%" />-->
+        <s:Label text="{data.Id}"  width="0" visible="false"/>
+        <s:Label text="{data.title}"  width="79%" />
+        <s:Spacer width="100%"/>
+        <s:CheckBox id="cb" selected="{data.isComplete}"  width="20%"  click="cb_clickHandler(event)"  />
+
+    </s:HGroup>
+    <fx:Script><![CDATA[
+
+        private function cb_clickHandler(event:MouseEvent):void {
+            if(cb.selected)
+            {
+                data.isComplete=true;
+            }
+            else
+
+            {
+                data.isComplete=false;
+            }
+        }
+        ]]>
+    </fx:Script>
+</s:DataRenderer>
